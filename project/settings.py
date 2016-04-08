@@ -27,16 +27,17 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = [
+    'suit',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'blog',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -57,13 +58,23 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [os.path.join(BASE_DIR, 'templates')]
         ,
-        'APP_DIRS': True,
+        # 'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'blog.views.global_set',
+            ],
+
+            'loaders': [  # in order , first filesystem, second app-subdir.
+                # 'django.template.loaders.filesystem.Loader',
+                # 'django.template.loaders.app_directories.Loader',
+                ('django.template.loaders.cached.Loader', [  # for cache
+                    'django.template.loaders.filesystem.Loader',  # for locate
+                    'django.template.loaders.app_directories.Loader',  # for locate
+                ]),
             ],
         },
     },
@@ -77,8 +88,12 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'django',
+        'USER': 'django',
+        'PASSWORD': 'Passw0rd#@$',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 
@@ -107,16 +122,155 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# define finder backends that know how to find static files in various locaion.
+STATICFILES_FINDERS = (
+    # STATICFILES_DIRS
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    # static subdir in app
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder"
+)
+
+# locations the staticfiles app will traverse
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
+
+# collecting your static files from their permanent locations into one directory for ease of deployment
+STATIC_ROOT = "/Users/kingspringring/Python/Python3-5-1/project_static"
+
+# A path to a callable that will be used to configure logging
+LOGGING_CONFIG = 'logging.config.dictConfig'
+
+# 自定义日志输出信息
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s [%(threadName)s:%(thread)d] [%(name)s:%(lineno)d] [%(module)s:%(funcName)s] [%(levelname)s]- %(message)s'}  #日志格式
+    },
+    'filters': {
+    },
+    'handlers': {
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': True,
+            },
+        'default': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': 'log/all.log',     #日志输出文件
+            'maxBytes': 1024*1024*5,                  #文件大小
+            'backupCount': 5,                         #备份份数
+            'formatter':'standard',                   #使用哪种formatters日志格式
+        },
+        'error': {
+            'level':'ERROR',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': 'log/error.log',
+            'maxBytes':1024*1024*5,
+            'backupCount': 5,
+            'formatter':'standard',
+            },
+        'console':{
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard'
+        },
+        'request_handler': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': 'log/script.log',
+            'maxBytes': 1024*1024*5,
+            'backupCount': 5,
+            'formatter':'standard',
+            },
+        'scprits_handler': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename':'log/script.log',
+            'maxBytes': 1024*1024*5,
+            'backupCount': 5,
+            'formatter':'standard',
+            }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['default', 'console'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
+        'django.request': {
+            'handlers': ['request_handler'],
+            'level': 'DEBUG',
+            'propagate': False,
+            },
+        'scripts': {
+            'handlers': ['scprits_handler'],
+            'level': 'INFO',
+            'propagate': False
+        },
+        'blog.views': {
+            'handlers': ['default', 'error'],
+            'level': 'DEBUG',
+            'propagate': True
+        },
+    }
+}
+
+# 网站基本信息
+SITE_NAME = '呵呵呵'
+SITE_DESC = '哈哈哈'
+SITE_URL = 'http://localhost:8000/'
+WEIBO_SINA = 'http://weibo.com/kingspringring'
+
+# override the default User Model
+AUTH_USER_MODEL = 'blog.User'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'upload/')
+# MEDIA_URL = 'http://127.0.0.1:8000/static/'
+MEDIA_URL = '/upload/'
+
+
+# Django Suit configuration example
+SUIT_CONFIG = {
+    # header
+    'ADMIN_NAME': 'BLOG管理后台',
+     'HEADER_DATE_FORMAT': 'l, j. F Y',
+     'HEADER_TIME_FORMAT': 'H:i',
+
+    # forms
+     'SHOW_REQUIRED_ASTERISK': True,  # Default True
+     'CONFIRM_UNSAVED_CHANGES': True, # Default True
+
+    # menu
+     'SEARCH_URL': '/admin/blog/user',
+     #'MENU_ICONS': {
+     #   'sites': 'icon-picture',
+     #   'auth': 'icon-lock',
+     #},
+     'MENU_OPEN_FIRST_CHILD': True, # Default True
+     # 'MENU_EXCLUDE': ('auth.group',),
+     'MENU': (
+         {'app': 'auth', 'label': 'Auth', 'icon':'icon-lock', 'models': ('group',)},
+         {'app':'blog', 'label':'Blog', 'icon':'icon-leaf', 'models':('User', 'Tag', 'Category', 'Article', 'Comment', 'Links', 'Ad')},
+     ),
+
+    # misc
+     'LIST_PER_PAGE': 10
+}
