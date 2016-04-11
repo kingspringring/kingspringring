@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils.encoding import python_2_unicode_compatible
 import time,random,hashlib
 
 # Create your models here.
@@ -27,6 +28,7 @@ def user_directory_path(instance, filename):
     prefix = str(m.hexdigest())
     return 'avatar/{0}/{1}/{2}/{3}'.format(year, month, day, prefix+'.'+filename_postfix)
 
+@python_2_unicode_compatible # only if you need to support Python 2
 class User(AbstractUser):
     avatar = models.ImageField(upload_to=user_directory_path, default='avatar/default.png', max_length=200, blank=True, null=True, verbose_name='用户头像')
     qq = models.CharField(max_length=20, blank=True, null=True, verbose_name='QQ号码')
@@ -38,7 +40,7 @@ class User(AbstractUser):
         verbose_name_plural = verbose_name
         ordering = ['-id']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.username
 
 # tag（标签）
@@ -49,7 +51,7 @@ class Tag(models.Model):
         verbose_name = '标签'
         verbose_name_plural = verbose_name
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 # 分类
@@ -62,7 +64,7 @@ class Category(models.Model):
         verbose_name_plural = verbose_name
         ordering = ['index', 'id']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 # 自定义一个文章Model的管理器
@@ -102,7 +104,7 @@ class Article(models.Model):
         verbose_name_plural = verbose_name
         ordering = ['-date_publish']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
 # 评论模型
@@ -120,7 +122,7 @@ class Comment(models.Model):
         verbose_name = '评论'
         verbose_name_plural = verbose_name
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.id)
 
     def children_comment(self):
@@ -139,7 +141,7 @@ class Links(models.Model):
         verbose_name_plural = verbose_name
         ordering = ['index', 'id']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
 # 广告
@@ -156,5 +158,5 @@ class Ad(models.Model):
         verbose_name_plural = verbose_name
         ordering = ['index', 'id']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title

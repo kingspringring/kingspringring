@@ -251,7 +251,7 @@ MEDIA_URL = '/upload/'
 SUIT_CONFIG = {
     # header
     'ADMIN_NAME': 'BLOG管理后台',
-     'HEADER_DATE_FORMAT': 'l, j. F Y',
+     'HEADER_DATE_FORMAT': 'l j F Y',
      'HEADER_TIME_FORMAT': 'H:i',
 
     # forms
